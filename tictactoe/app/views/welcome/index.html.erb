@@ -47,11 +47,11 @@
 <section class="container">
 	<h1>Tic Tac Toe</h1>
 
-	<article class="board">
+	<article id="board" class="board">
 	<% (1..3).each do | rowNum | %>
 		<div class="row row<%= rowNum %>">
 		<% (1..3).each do | colNum | %>
-			<% cellNum = (rowNum - 1) * 3 + colNum %>
+			<% cellNum = 3 * (rowNum - 1) + colNum %>
 			<div id="c<%= cellNum %>" class="cell cell<%= cellNum %>">
 			</div>
 		<% end %>
@@ -62,3 +62,69 @@
 		<h3>Scoreboard</h3>
 	</article>
 </section>
+
+<script>
+	class Game {
+		constructor() {
+			console.info('[ Game | ctor ] constructing new Game instance')
+			this.currentTurn = -1
+		}
+
+		/**
+		* This method returns the value of the currentTurn instance variable
+		*/
+		getCurrentTurn() {
+			console.info(`[ Game | getCurrentTurn ] currentTurn=${this.currentTurn}`)
+
+			switch (this.currentTurn) {
+				case -1:
+					alert('Game has not yet started')
+				break
+				case 0:
+					alert('It is p0 turn')
+				break
+				case 1:
+					alert('It is p1 turn')
+				break
+			}
+
+			return this.currentTurn
+		}
+
+		/**
+		* This method begins the game and advances to the first turn; it can only meaningfully be called once -
+		* after the first invocation, this method will bail early with a console warning
+		*/
+		startGame() {
+			if (this.currentTurn !== -1) {
+				console.warn('[ Game | startGame ] cannot start a game already in progress! bailing...')
+				return
+			}
+
+			console.info('[ Game | startGame ] starting game')
+
+			// advance to next turn, ensure value is either 0 or 1
+			this.currentTurn = (this.currentTurn + 1) % 2
+
+			const turn = this.currentTurn
+
+			console.info(`[ Game | startGame ] it is now p${turn}\'s turn`)
+		}
+	}
+
+	let currentGame
+
+	/**
+	* This function creates a new game and starts it
+	*/
+	function startNewGame() {
+		currentGame = new Game()
+		currentGame.startGame()
+	}
+
+	// wait for window to complete load; arrow func requires JS >= es2015 in browser
+	window.onload = () => {
+		const board = document.getElementById('board')
+		// startNewGame()
+	}
+</script>
