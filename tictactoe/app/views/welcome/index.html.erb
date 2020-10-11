@@ -80,6 +80,7 @@
 		<h3>Controls</h3>
 		<div>
 			<p class="status">Status - N/A</p>
+			<p class="turns"></p>
 			<button onclick="startNewGame()">New Game</button>
 		</div>
 	</article>
@@ -95,32 +96,24 @@
 	class Game {
 		constructor() {
 			console.info('[ Game | ctor ] constructing new Game instance')
-			this.currentTurn = -1
+			this.currentPlayer = -1
+			this.totalTurns = -1
 		}
 
 		/**
 		* This method advances the game turn to the next player
 		*/
 		advanceTurn() {
-			console.info(`[ Game | advanceTurn ] currentTurn=${this.currentTurn}`)
+			console.info(`[ Game | advanceTurn ] totalTurns=${this.totalTurns} currentPlayer=${this.currentPlayer}`)
+
+			this.totalTurns++
 
 			// advance to next turn, ensure value is either 0 or 1
-			this.currentTurn = (this.currentTurn + 1) % 2
+			this.currentPlayer = (this.currentPlayer + 1) % 2
 
-			const turn = this.currentTurn
-
-			console.info(`[ Game | advanceTurn ] it is now p${turn}\'s turn`)
+			console.info(`[ Game | advanceTurn ] it is now p${this.currentPlayer}\'s turn`)
 
 			updateStatus()
-		}
-
-		/**
-		* This method returns the value of the currentTurn instance variable
-		*/
-		getCurrentTurn() {
-			console.info(`[ Game | getCurrentTurn ] currentTurn=${this.currentTurn}`)
-
-			return this.currentTurn
 		}
 
 		/**
@@ -128,7 +121,7 @@
 		* after the first invocation, this method will bail early with a console warning
 		*/
 		startGame() {
-			if (this.currentTurn !== -1) {
+			if (this.currentPlayer !== -1) {
 				console.warn('[ Game | startGame ] cannot start a game already in progress! bailing...')
 				return
 			}
@@ -144,13 +137,13 @@
 	/**
 	* This function returns a friendly display value for game status
 	*/
-	function formatStatus(currentTurn) {
+	function formatStatus(player) {
 		console.info('[ formatStatus ]')
 
-		switch (currentTurn) {
+		switch (player) {
 			case 0:
 			case 1:
-				return `It is P${currentTurn}'s turn`
+				return `It is P${player}'s turn`
 			case -1:
 			default:
 				return 'N/A'
@@ -173,14 +166,14 @@
 	function handleCellClick(cell) {
 		console.info('[ handleCellClick ]')
 
-		const turn = currentGame.getCurrentTurn()
+		const player = currentGame.currentPlayer
 
-		if (turn === -1 || cell.classList.contains('selected')) {
+		if (player === -1 || cell.classList.contains('selected')) {
 			return
 		}
 
 		cell.removeEventListener('click', handleCellClick)
-		cell.classList.add('selected', `p${turn}`)
+		cell.classList.add('selected', `p${player}`)
 
 		currentGame.advanceTurn()
 	}
@@ -193,11 +186,13 @@
 
 		const ctrl = document.getElementById('controls')
 		const status = ctrl.getElementsByClassName('status')[0]
-		const turn = currentGame.getCurrentTurn()
+		const totalTurnsLabel = ctrl.getElementsByClassName('turns')[0]
+		const player = currentGame.currentPlayer
 
-		console.info(`[ updateStatus ] turn=${turn}`)
+		console.info(`[ updateStatus ] turns=${currentGame.totalTurns} player=${player}`)
 
-		status.textContent = `Status - ${formatStatus(turn)}`
+		status.textContent = `Status - ${formatStatus(player)}`
+		totalTurnsLabel.textContent = `Turns taken - ${currentGame.totalTurns}`
 
 		const board = document.getElementById('board')
 		board.classList.replace('not-started', 'started')
