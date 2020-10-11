@@ -1,6 +1,18 @@
 # ruby-tic-tac-toe
 The Game Tic-Tac-Toe in Ruby
 
+## Requirements
+
+* Node 8.16+ ([download](https://nodejs.org/en/download/))
+* Ruby 2.5+ ([download](https://rubyinstaller.org/downloads/))
+* Rails 6+ ([download](http://railsinstaller.org/en))
+* Yarn 1.20+ ([download](https://classic.yarnpkg.com/en/docs/install))
+* SQLLite3 (included w/ Rails installer)
+
+## Running
+
+Navigate to the `tictactoe` directory, then run `rails server`
+
 ## My Setup Process
 
 1. Install Ruby and Ruby on Rails
@@ -17,3 +29,4 @@ The Game Tic-Tac-Toe in Ruby
 1. Generate first controller
     1. `rails generate controller Welcome index`
 1. [This page](http://ruby.bastardsbook.com/chapters/collections/) helped with some of the Ruby syntax used in the template
+1. The initial Rails app structure is sufficient for this project, so I'm going to use the index page I just created to host the game. I've decided I'll use ERB and Ruby to help with templating, but for the actual page interaction, the app will use vanilla JavaScript (and the DOM).
