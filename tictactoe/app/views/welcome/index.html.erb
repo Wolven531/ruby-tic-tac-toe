@@ -21,12 +21,29 @@
 		height: 6em;
 	}
 
+	.cell.selected.p0 {
+		background-color: #afa;
+	}
+
+	.cell.selected.p1 {
+		background-color: #aaf;
+	}
+
+	.board.started .cell:hover:not(.selected) {
+		background-color: rgba(255, 255, 128, .5);
+	}
+
 	.container {
 
 	}
 
+	.controls {
+
+	}
+
 	.container h1,
-	.scoreboard h3 {
+	.scoreboard h3,
+	.controls h3 {
 		margin: 1em auto;
 		width: 5em;
 	}
@@ -47,7 +64,7 @@
 <section class="container">
 	<h1>Tic Tac Toe</h1>
 
-	<article id="board" class="board">
+	<article id="board" class="board not-started">
 	<% (1..3).each do | rowNum | %>
 		<div class="row row<%= rowNum %>">
 		<% (1..3).each do | colNum | %>
@@ -58,12 +75,22 @@
 		</div>
 	<% end %>
 	</article>
-	<article class="scoreboard">
+	<article id="controls" class="controls">
+		<h3>Controls</h3>
+		<div>
+			<p class="status">Status - N/A</p>
+			<button onclick="startNewGame()">New Game</button>
+		</div>
+	</article>
+	<article id="scoreboard" class="scoreboard">
 		<h3>Scoreboard</h3>
 	</article>
 </section>
 
 <script>
+	// wait for window to complete load; arrow func requires JS >= es2015 in browser
+	// window.onload = () => { }
+
 	class Game {
 		constructor() {
 			console.info('[ Game | ctor ] constructing new Game instance')
@@ -75,18 +102,6 @@
 		*/
 		getCurrentTurn() {
 			console.info(`[ Game | getCurrentTurn ] currentTurn=${this.currentTurn}`)
-
-			switch (this.currentTurn) {
-				case -1:
-					alert('Game has not yet started')
-				break
-				case 0:
-					alert('It is p0 turn')
-				break
-				case 1:
-					alert('It is p1 turn')
-				break
-			}
 
 			return this.currentTurn
 		}
@@ -109,10 +124,26 @@
 			const turn = this.currentTurn
 
 			console.info(`[ Game | startGame ] it is now p${turn}\'s turn`)
+
+			updateStatus()
 		}
 	}
 
 	let currentGame
+
+	/**
+	* This function returns a friendly display value for game status
+	*/
+	function formatStatus(currentTurn) {
+		switch (currentTurn) {
+			case 0:
+			case 1:
+				return `It is P${currentTurn}'s turn`
+			case -1:
+			default:
+				return 'N/A'
+		}
+	}
 
 	/**
 	* This function creates a new game and starts it
@@ -122,9 +153,27 @@
 		currentGame.startGame()
 	}
 
-	// wait for window to complete load; arrow func requires JS >= es2015 in browser
-	window.onload = () => {
+	/**
+	* This function updates the DOM to reflect a new game status (CSS classes on the board, event handlers, etc.)
+	*/
+	function updateStatus() {
+		const ctrl = document.getElementById('controls')
+		const status = ctrl.getElementsByClassName('status')[0]
+		const turn = currentGame.getCurrentTurn()
+
+		status.textContent = `Status - ${formatStatus(turn)}`
+
 		const board = document.getElementById('board')
-		// startNewGame()
+		board.classList.replace('not-started', 'started')
+
+		const cells = board.getElementsByClassName('cell')
+		for (const cell of cells) {
+			const clickHandle = () => {
+				cell.removeEventListener('click', clickHandle)
+				cell.classList.add('selected', `p${turn}`)
+			}
+			cell.addEventListener('click', clickHandle)
+		}
+		// cells.forEach(cell => { })
 	}
 </script>
