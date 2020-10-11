@@ -11,7 +11,7 @@ The Game Tic-Tac-Toe in Ruby
 
 ## Running
 
-Navigate to the `tictactoe` directory, then run `rails server`
+Navigate to the `tictactoe` directory, then run `rails server`; the running app is available at [http://localhost:3000](http://localhost:3000)
 
 ## My Setup Process
 
