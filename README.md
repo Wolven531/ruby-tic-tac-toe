@@ -12,3 +12,7 @@ The Game Tic-Tac-Toe in Ruby
         1. Also installed [Yarn](https://classic.yarnpkg.com/en/docs/install), because Rails needs it
 1. Create new Rails app w/ CLI
     1. `rails new tictactoe`
+1. Boot Rails app w/ CLI
+    1. `cd tictactoe; rails server`
+1. Generate first controller
+    1. `rails generate controller Welcome index`
