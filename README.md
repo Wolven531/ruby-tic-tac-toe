@@ -16,3 +16,4 @@ The Game Tic-Tac-Toe in Ruby
     1. `cd tictactoe; rails server`
 1. Generate first controller
     1. `rails generate controller Welcome index`
+1. [This page](http://ruby.bastardsbook.com/chapters/collections/) helped with some of the Ruby syntax used in the template
