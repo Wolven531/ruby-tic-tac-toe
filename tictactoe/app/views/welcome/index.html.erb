@@ -1,1 +1,64 @@
-<h1>Tic Tac Toe</h1>
+<% content_for :title, "Home" %>
+
+<style>
+	.board {
+		/*
+			background-color: #222;
+			border: 1px solid #111;
+		*/
+		border-radius: 1em;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		/* Account for borders - 1px border x 2 sides x 3 rows */
+		height: calc(3 * 6em + 6px);
+	}
+
+	.cell {
+		background-color: #999;
+		border: 1px solid #333;
+		border-radius: 1em;
+		height: 6em;
+	}
+
+	.container {
+
+	}
+
+	.container h1,
+	.scoreboard h3 {
+		margin: 1em auto;
+		width: 5em;
+	}
+
+	.row {
+		
+	}
+
+	.scoreboard {
+		background-color: #acc;
+		border: 1px solid #333;
+		border-radius: 1em;
+		margin-top: 3em;
+		min-height: 15em;
+	}
+</style>
+
+<section class="container">
+	<h1>Tic Tac Toe</h1>
+
+	<article class="board">
+	<% (1..3).each do | rowNum | %>
+		<div class="row row<%= rowNum %>">
+		<% (1..3).each do | colNum | %>
+			<% cellNum = (rowNum - 1) * 3 + colNum %>
+			<div id="c<%= cellNum %>" class="cell cell<%= cellNum %>">
+			</div>
+		<% end %>
+		</div>
+	<% end %>
+	</article>
+	<article class="scoreboard">
+		<h3>Scoreboard</h3>
+	</article>
+</section>
