@@ -31,6 +31,7 @@
 
 	.board.started .cell:hover:not(.selected) {
 		background-color: rgba(255, 255, 128, .5);
+		cursor: pointer;
 	}
 
 	.container {
@@ -69,7 +70,7 @@
 		<div class="row row<%= rowNum %>">
 		<% (1..3).each do | colNum | %>
 			<% cellNum = 3 * (rowNum - 1) + colNum %>
-			<div id="c<%= cellNum %>" class="cell cell<%= cellNum %>">
+			<div id="c<%= cellNum %>" class="cell cell<%= cellNum %>" onclick="handleCellClick(this)">
 			</div>
 		<% end %>
 		</div>
@@ -98,6 +99,22 @@
 		}
 
 		/**
+		* This method advances the game turn to the next player
+		*/
+		advanceTurn() {
+			console.info(`[ Game | advanceTurn ] currentTurn=${this.currentTurn}`)
+
+			// advance to next turn, ensure value is either 0 or 1
+			this.currentTurn = (this.currentTurn + 1) % 2
+
+			const turn = this.currentTurn
+
+			console.info(`[ Game | advanceTurn ] it is now p${turn}\'s turn`)
+
+			updateStatus()
+		}
+
+		/**
 		* This method returns the value of the currentTurn instance variable
 		*/
 		getCurrentTurn() {
@@ -118,14 +135,7 @@
 
 			console.info('[ Game | startGame ] starting game')
 
-			// advance to next turn, ensure value is either 0 or 1
-			this.currentTurn = (this.currentTurn + 1) % 2
-
-			const turn = this.currentTurn
-
-			console.info(`[ Game | startGame ] it is now p${turn}\'s turn`)
-
-			updateStatus()
+			this.advanceTurn()
 		}
 	}
 
@@ -135,6 +145,8 @@
 	* This function returns a friendly display value for game status
 	*/
 	function formatStatus(currentTurn) {
+		console.info('[ formatStatus ]')
+
 		switch (currentTurn) {
 			case 0:
 			case 1:
@@ -149,31 +161,45 @@
 	* This function creates a new game and starts it
 	*/
 	function startNewGame() {
+		console.info('[ startNewGame ]')
+
 		currentGame = new Game()
 		currentGame.startGame()
+	}
+
+	/**
+	* This function is invoked when a cell is clicked; it contains move validation logic
+	*/
+	function handleCellClick(cell) {
+		console.info('[ handleCellClick ]')
+
+		const turn = currentGame.getCurrentTurn()
+
+		if (turn === -1 || cell.classList.contains('selected')) {
+			return
+		}
+
+		cell.removeEventListener('click', handleCellClick)
+		cell.classList.add('selected', `p${turn}`)
+
+		currentGame.advanceTurn()
 	}
 
 	/**
 	* This function updates the DOM to reflect a new game status (CSS classes on the board, event handlers, etc.)
 	*/
 	function updateStatus() {
+		console.info('[ updateStatus ]')
+
 		const ctrl = document.getElementById('controls')
 		const status = ctrl.getElementsByClassName('status')[0]
 		const turn = currentGame.getCurrentTurn()
+
+		console.info(`[ updateStatus ] turn=${turn}`)
 
 		status.textContent = `Status - ${formatStatus(turn)}`
 
 		const board = document.getElementById('board')
 		board.classList.replace('not-started', 'started')
-
-		const cells = board.getElementsByClassName('cell')
-		for (const cell of cells) {
-			const clickHandle = () => {
-				cell.removeEventListener('click', clickHandle)
-				cell.classList.add('selected', `p${turn}`)
-			}
-			cell.addEventListener('click', clickHandle)
-		}
-		// cells.forEach(cell => { })
 	}
 </script>
