@@ -60,6 +60,10 @@
 		margin-top: 3em;
 		min-height: 15em;
 	}
+
+	.scoreboard h4 {
+		margin-left: 2em;
+	}
 </style>
 
 <section class="container">
@@ -87,6 +91,9 @@
 	</article>
 	<article id="scoreboard" class="scoreboard">
 		<h3>Scoreboard</h3>
+		<h4 id="scoreP0Wins">🚀 P0 Wins - 0</h4>
+		<h4 id="scoreP1Wins">🦈 P1 Wins - 0</h4>
+		<h4 id="scoreTies">😿 Ties - 0</h4>
 	</article>
 </section>
 
@@ -110,9 +117,8 @@
 		advanceTurn(cells) {
 			console.info(`[ Game | advanceTurn ] totalTurns=${this.totalTurns} currentPlayer=${this.currentPlayer}`)
 
-			if (this.hasEnded || this.isAtMaxTurns()) {
-				console.info('[ Game | advanceTurn ] game is at max turns or has ended, skipping turn advance...')
-
+			if (this.hasEnded) {
+				console.info('[ Game | advanceTurn ] game has ended, skipping turn advance...')
 				updateStatus()
 
 				return
@@ -213,18 +219,7 @@
 				return false
 			})
 
-			this.hasEnded = winConditions.length > 0
-
-			return this.hasEnded
-		}
-
-		/**
-		* This method returns whether the game is at or beyond the maximum possible turn count
-		*/
-		isAtMaxTurns() {
-			console.info('[ Game | isAtMaxTurns ] ')
-
-			this.hasEnded = this.totalTurns >= 8
+			this.hasEnded = winConditions.length > 0 || selected.length >= 9
 
 			return this.hasEnded
 		}
@@ -270,7 +265,9 @@
 		console.info('[ startNewGame ]')
 
 		const board = document.getElementById('board')
+		const ctrl = document.getElementById('controls')
 		const cells = board.getElementsByClassName('cell')
+		const endedLabel = ctrl.getElementsByClassName('ended')[0]
 
 		board.classList.remove('ended', 'not-started', 'started')
 		board.classList.add('not-started')
@@ -278,6 +275,8 @@
 		Array.from(cells).forEach(cell => {
 			cell.classList.remove('p0', 'p1', 'selected')
 		})
+
+		endedLabel.textContent = ''
 
 		currentGame = new Game()
 		currentGame.startGame()
@@ -330,7 +329,31 @@
 		if (currentGame.hasEnded) {
 			board.classList.replace('started', 'ended')
 
-			endedLabel.textContent = `Game Over - Winner is P${currentGame.winner}`
+			const scoreP0Wins = document.getElementById('scoreP0Wins')
+			const scoreP1Wins = document.getElementById('scoreP1Wins')
+			const scoreTies = document.getElementById('scoreTies')
+
+			const p0w = parseInt(scoreP0Wins.textContent.trim().match(/(\d+)$/gi))
+			const p1w = parseInt(scoreP1Wins.textContent.trim().match(/(\d+)$/gi))
+			const ties = parseInt(scoreTies.textContent.trim().match(/(\d+)$/gi))
+
+			switch(currentGame.winner) {
+				case 0:
+					const newP0Wins = p0w + 1
+					endedLabel.innerHTML = `Game Over - Winner is P0, their ${newP0Wins}<sup>th</sup> time! 🚀`
+					scoreP0Wins.textContent = `🚀 P0 Wins - ${newP0Wins}`
+				break
+				case 1:
+					const newP1Wins = p1w + 1
+					endedLabel.innerHTML = `Game Over - Winner is P1, their ${newP1Wins}<sup>th</sup> time! 🦈`
+					scoreP1Wins.textContent = `🦈 P0 Wins - ${newP1Wins}`
+				break
+				case -1:
+				default:
+					endedLabel.textContent = `Game Over - Nobody wins this time... 😿`
+					scoreTies.textContent = `😿 Ties - ${ties + 1}`
+				break
+			}
 		} else {
 			board.classList.replace('not-started', 'started')
 		}
