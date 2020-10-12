@@ -30,3 +30,5 @@ Navigate to the `tictactoe` directory, then run `rails server`; the running app 
     1. `rails generate controller Welcome index`
 1. [This page](http://ruby.bastardsbook.com/chapters/collections/) helped with some of the Ruby syntax used in the template
 1. The initial Rails app structure is sufficient for this project, so I'm going to use the index page I just created to host the game. I've decided I'll use ERB and Ruby to help with templating, but for the actual page interaction, the app will use vanilla JavaScript (and the DOM).
+1. Generate a model to track game history - `rails generate model GameHistory num_ties:numeric num_p0_wins:numeric num_p1_wins:numeric`
+1. Run migration - `rails db:migrate`
