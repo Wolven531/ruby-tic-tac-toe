@@ -264,10 +264,20 @@
 	}
 
 	/**
-	* This function creates a new game and starts it
+	* This function performs a general UI reset, creates a new game, and starts it
 	*/
 	function startNewGame() {
 		console.info('[ startNewGame ]')
+
+		const board = document.getElementById('board')
+		const cells = board.getElementsByClassName('cell')
+
+		board.classList.remove('ended', 'not-started', 'started')
+		board.classList.add('not-started')
+
+		Array.from(cells).forEach(cell => {
+			cell.classList.remove('p0', 'p1', 'selected')
+		})
 
 		currentGame = new Game()
 		currentGame.startGame()
