@@ -81,6 +81,7 @@
 		<div>
 			<p class="status">Status - N/A</p>
 			<p class="turns"></p>
+			<p class="ended"></p>
 			<button onclick="startNewGame()">New Game</button>
 		</div>
 	</article>
@@ -96,15 +97,28 @@
 	class Game {
 		constructor() {
 			console.info('[ Game | ctor ] constructing new Game instance')
+
 			this.currentPlayer = -1
+			this.hasEnded = false
 			this.totalTurns = -1
+			this.winner = -1
 		}
 
 		/**
 		* This method advances the game turn to the next player
 		*/
-		advanceTurn() {
+		advanceTurn(cells) {
 			console.info(`[ Game | advanceTurn ] totalTurns=${this.totalTurns} currentPlayer=${this.currentPlayer}`)
+
+			if (this.hasEnded || this.isAtMaxTurns()) {
+				console.info('[ Game | advanceTurn ] game is at max turns or has ended, skipping turn advance...')
+
+				updateStatus()
+
+				return
+			}
+
+			currentGame.checkForWin(cells || [])
 
 			this.totalTurns++
 
@@ -114,6 +128,105 @@
 			console.info(`[ Game | advanceTurn ] it is now p${this.currentPlayer}\'s turn`)
 
 			updateStatus()
+		}
+
+		/**
+		* This method checks the optionally provided cells parameter (an HTMLCollection or array) for win conditions
+		*/
+		checkForWin(cells) {
+			console.info('[ Game | checkForWin ] cells=', cells)
+
+			cells = Array.from(cells)
+
+			// if cells are not provided, assume no win
+			if (cells.length === 0) {
+				console.info('[ Game | checkForWin ] no cells to check, returning false...')
+
+				return false
+			}
+
+			// exhaustive list of all possible wins
+			const colWins = [
+				[1, 4, 7],
+				[2, 5, 8],
+				[3, 6, 9],
+			]
+			const rowWins = [
+				[1, 2, 3],
+				[4, 5, 6],
+				[7, 8, 9],
+			]
+			const diagWins = [
+				[1, 5, 9],
+				[3, 5, 7],
+			]
+			const allWins = colWins.concat(rowWins).concat(diagWins)
+
+			// all selected cells
+			const selected = cells.filter((cell) => {
+				return cell.classList.contains('selected')
+			})
+			const player0Cells = selected.filter((cell) => {
+				return cell.classList.contains('p0')
+			})
+			const player1Cells = selected.filter((cell) => {
+				return cell.classList.contains('p1')
+			})
+
+			// cannot win without three turns for a single player
+			if (player0Cells.length < 3 && player1Cells.length < 3) {
+				console.info('[ Game | checkForWin ] not enough selected cells for a win, returning false...')
+
+				return false
+			}
+
+			const p0c = player0Cells.map(cell => {
+				return parseInt(
+					cell.className
+						.split(' ')
+						.filter(c => c !== 'cell' && c !== 'selected' && c !== 'p0')
+						.map(c => c.replace('cell', ''))
+				)
+			})
+			const p1c = player1Cells.map(cell => {
+				return parseInt(
+					cell.className
+						.split(' ')
+						.filter(c => c !== 'cell' && c !== 'selected' && c !== 'p1')
+						.map(cn => cn.replace('cell', ''))
+				)
+			})
+
+			const winConditions = allWins.filter((winConfig) => {
+				if (winConfig.every(w => p0c.includes(w))) {
+					this.winner = 0
+
+					return true
+				}
+
+				if (winConfig.every(w => p1c.includes(w))) {
+					this.winner = 1
+
+					return true
+				}
+
+				return false
+			})
+
+			this.hasEnded = winConditions.length > 0
+
+			return this.hasEnded
+		}
+
+		/**
+		* This method returns whether the game is at or beyond the maximum possible turn count
+		*/
+		isAtMaxTurns() {
+			console.info('[ Game | isAtMaxTurns ] ')
+
+			this.hasEnded = this.totalTurns >= 8
+
+			return this.hasEnded
 		}
 
 		/**
@@ -166,16 +279,23 @@
 	function handleCellClick(cell) {
 		console.info('[ handleCellClick ]')
 
+		if (!currentGame) {
+			return
+		}
+
 		const player = currentGame.currentPlayer
 
-		if (player === -1 || cell.classList.contains('selected')) {
+		if (currentGame.hasEnded || player === -1 || cell.classList.contains('selected')) {
 			return
 		}
 
 		cell.removeEventListener('click', handleCellClick)
 		cell.classList.add('selected', `p${player}`)
 
-		currentGame.advanceTurn()
+		const board = document.getElementById('board')
+		const cells = board.getElementsByClassName('cell')
+
+		currentGame.advanceTurn(cells)
 	}
 
 	/**
@@ -185,6 +305,7 @@
 		console.info('[ updateStatus ]')
 
 		const ctrl = document.getElementById('controls')
+		const endedLabel = ctrl.getElementsByClassName('ended')[0]
 		const status = ctrl.getElementsByClassName('status')[0]
 		const totalTurnsLabel = ctrl.getElementsByClassName('turns')[0]
 		const player = currentGame.currentPlayer
@@ -195,6 +316,13 @@
 		totalTurnsLabel.textContent = `Turns taken - ${currentGame.totalTurns}`
 
 		const board = document.getElementById('board')
-		board.classList.replace('not-started', 'started')
+
+		if (currentGame.hasEnded) {
+			board.classList.replace('started', 'ended')
+
+			endedLabel.textContent = `Game Over - Winner is P${currentGame.winner}`
+		} else {
+			board.classList.replace('not-started', 'started')
+		}
 	}
 </script>
