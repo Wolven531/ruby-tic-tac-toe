@@ -12,37 +12,32 @@ class WelcomeController < ApplicationController
 	end
 
 	def create
-		@player = params[:player].to_i
-		@result = params[:result].to_s
+		@result = GameResult.new(result_params)
 
-		if @result == 'win'
-			if @player == 0
-				add_player0_win
-			else
-				add_player1_win
-			end
+		@history = GameHistory.first
+		if @history
 		else
-			add_tie
+			@history = GameHistory.new
 		end
 
-		render :json => {
-			:numWinsPlayer0 => @numWinsPlayer0,
-			:numWinsPlayer1 => @numWinsPlayer1,
-			:numTies => @numTies
-		}
+		if @result.result == 'win'
+			if @result.player == 0
+				@history.add_player0_win
+			else
+				@history.add_player1_win
+			end
+		else
+			@history.add_tie
+		end
+
+		@history.save
+
+		render :json => @history
 	end
 
 	private
 
-	def add_player0_win
-		@numWinsPlayer0 = @numWinsPlayer0 + 1
-	end
-
-	def add_player1_win
-		@numWinsPlayer1 = @numWinsPlayer1 + 1
-	end
-
-	def add_tie
-		@numTies = @numTies + 1
+	def result_params
+		params.require(:result).permit(:player, :result)
 	end
 end
